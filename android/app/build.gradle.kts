@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.adf_app"
+    namespace = "de.mpi.ds.adf_app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -20,8 +20,8 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.adf_app"
+        // Application ID - Update this to your own unique package name
+        applicationId = "de.mpi.ds.adf_app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -30,11 +30,28 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        create("release") {
+            // Release signing configuration
+            // To create a keystore, run:
+            // keytool -genkey -v -keystore adf_app-release-key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias adf_app
+            // Then update the values below and uncomment them
+
+            // storeFile = file("path/to/your/keystore.jks")
+            // storePassword = System.getenv("KEYSTORE_PASSWORD") ?: ""
+            // keyAlias = "your-key-alias"
+            // keyPassword = System.getenv("KEY_PASSWORD") ?: ""
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            // Use release signing config when configured
+            // For now, debug signing is used to allow testing release builds
+            // IMPORTANT: Configure proper release signing before publishing to production
             signingConfig = signingConfigs.getByName("debug")
+            // Uncomment the line below once you've configured release signing:
+            // signingConfig = signingConfigs.getByName("release")
         }
     }
 }
