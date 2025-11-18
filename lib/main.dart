@@ -4,10 +4,13 @@ import 'providers/auth_provider.dart';
 import 'providers/company_provider.dart';
 import 'providers/dashboard_provider.dart';
 import 'providers/settings_provider.dart';
+import 'providers/invoice_provider.dart';
+import 'providers/analytics_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/settings_screen.dart';
-import 'screens/invoices_screen.dart';
+import 'screens/invoices_list_screen.dart';
+import 'screens/analytics_screen.dart';
 import 'screens/documents_screen.dart';
 import 'services/api_service.dart';
 import 'services/storage_service.dart';
@@ -37,6 +40,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CompanyProvider()),
         ChangeNotifierProvider(create: (_) => DashboardProvider()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()..loadSettings()),
+        ChangeNotifierProvider(create: (_) => InvoiceProvider()),
+        ChangeNotifierProvider(create: (_) => AnalyticsProvider()),
       ],
       child: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
@@ -80,7 +85,8 @@ class MyApp extends StatelessWidget {
               '/login': (context) => const LoginScreen(),
               '/dashboard': (context) => const DashboardScreen(),
               '/settings': (context) => const SettingsScreen(),
-              '/invoices': (context) => const InvoicesScreen(),
+              '/invoices': (context) => const InvoicesListScreen(),
+              '/analytics': (context) => const AnalyticsScreen(),
               '/documents': (context) => const DocumentsScreen(),
             },
           );

@@ -91,6 +91,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             },
           ),
           IconButton(
+            icon: const Icon(Icons.analytics),
+            onPressed: () {
+              Navigator.of(context).pushNamed('/analytics');
+            },
+            tooltip: 'Analytics',
+          ),
+          IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
               Navigator.of(context).pushNamed('/settings');
@@ -339,13 +346,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     runSpacing: 8,
                     children: [
                       _QuickActionChip(
-                        icon: Icons.upload_file,
-                        label: 'Upload Document',
+                        icon: Icons.analytics,
+                        label: 'Analytics',
                         onTap: () {
-                          // TODO: Implement document upload
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Document upload coming soon')),
-                          );
+                          Navigator.of(context).pushNamed('/analytics');
                         },
                       ),
                       _QuickActionChip(
@@ -360,6 +364,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         label: 'Documents',
                         onTap: () {
                           Navigator.of(context).pushNamed('/documents');
+                        },
+                      ),
+                      _QuickActionChip(
+                        icon: Icons.upload_file,
+                        label: 'Upload Document',
+                        onTap: () {
+                          // TODO: Implement document upload
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Document upload coming soon')),
+                          );
                         },
                       ),
                     ],

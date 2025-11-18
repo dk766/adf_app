@@ -1,3 +1,4 @@
+// Enhanced invoice model with search and analytics support
 class Invoice {
   final String invoiceId;
   final String? invoiceType;
@@ -78,6 +79,27 @@ class Invoice {
       'payable_amount': payableAmount,
     };
   }
+
+  // Computed properties for analytics
+  bool get isOverdue {
+    if (dueDate == null) return false;
+    return dueDate!.isBefore(DateTime.now());
+  }
+
+  int? get daysUntilDue {
+    if (dueDate == null) return null;
+    return dueDate!.difference(DateTime.now()).inDays;
+  }
+
+  String get formattedAmount {
+    if (payableAmount == null) return 'N/A';
+    return '${payableAmount!.toStringAsFixed(2)} RON';
+  }
+
+  String get formattedTaxExclusive {
+    if (taxExclusiveAmount == null) return 'N/A';
+    return '${taxExclusiveAmount!.toStringAsFixed(2)} RON';
+  }
 }
 
 class PaginatedInvoices {
@@ -112,4 +134,110 @@ class PaginatedInvoices {
       'results': results.map((e) => e.toJson()).toList(),
     };
   }
+}
+
+// Analytics models
+class InvoiceAnalytics {
+  final int totalInvoices;
+  final double totalAmount;
+  final double averageAmount;
+  final int overdueCount;
+  final double overdueAmount;
+  final Map<String, int> byType;
+  final Map<String, double> bySupplier;
+  final List<MonthlyInvoiceData> monthlyTrend;
+
+  InvoiceAnalytics({
+    required this.totalInvoices,
+    required this.totalAmount,
+    required this.averageAmount,
+    required this.overdueCount,
+    required this.overdueAmount,
+    required this.byType,
+    required this.bySupplier,
+    required this.monthlyTrend,
+  });
+
+  factory InvoiceAnalytics.fromInvoices(List<Invoice> invoices) {
+    if (invoices.isEmpty) {
+      return InvoiceAnalytics(
+        totalInvoices: 0,
+        totalAmount: 0,
+        averageAmount: 0,
+        overdueCount: 0,
+        overdueAmount: 0,
+        byType: {},
+        bySupplier: {},
+        monthlyTrend: [],
+      );
+    }
+
+    final totalAmount = invoices
+        .where((i) => i.payableAmount != null)
+        .fold(0.0, (sum, i) => sum + i.payableAmount!);
+
+    final overdueInvoices = invoices.where((i) => i.isOverdue).toList();
+    final overdueAmount = overdueInvoices
+        .where((i) => i.payableAmount != null)
+        .fold(0.0, (sum, i) => sum + i.payableAmount!);
+
+    // Group by type
+    final Map<String, int> byType = {};
+    for (var invoice in invoices) {
+      final type = invoice.invoiceType ?? 'Unknown';
+      byType[type] = (byType[type] ?? 0) + 1;
+    }
+
+    // Group by supplier with amounts
+    final Map<String, double> bySupplier = {};
+    for (var invoice in invoices) {
+      final supplier = invoice.sellerName ?? 'Unknown';
+      final amount = invoice.payableAmount ?? 0;
+      bySupplier[supplier] = (bySupplier[supplier] ?? 0) + amount;
+    }
+
+    // Monthly trend
+    final Map<String, List<Invoice>> byMonth = {};
+    for (var invoice in invoices) {
+      if (invoice.issueDate != null) {
+        final key = '${invoice.issueDate!.year}-${invoice.issueDate!.month.toString().padLeft(2, '0')}';
+        byMonth[key] = [...(byMonth[key] ?? []), invoice];
+      }
+    }
+
+    final monthlyTrend = byMonth.entries.map((e) {
+      final amount = e.value
+          .where((i) => i.payableAmount != null)
+          .fold(0.0, (sum, i) => sum + i.payableAmount!);
+      return MonthlyInvoiceData(
+        month: e.key,
+        count: e.value.length,
+        totalAmount: amount,
+      );
+    }).toList()
+      ..sort((a, b) => a.month.compareTo(b.month));
+
+    return InvoiceAnalytics(
+      totalInvoices: invoices.length,
+      totalAmount: totalAmount,
+      averageAmount: totalAmount / invoices.length,
+      overdueCount: overdueInvoices.length,
+      overdueAmount: overdueAmount,
+      byType: byType,
+      bySupplier: bySupplier,
+      monthlyTrend: monthlyTrend,
+    );
+  }
+}
+
+class MonthlyInvoiceData {
+  final String month;
+  final int count;
+  final double totalAmount;
+
+  MonthlyInvoiceData({
+    required this.month,
+    required this.count,
+    required this.totalAmount,
+  });
 }

@@ -5,6 +5,7 @@ import '../models/company.dart';
 import '../models/dashboard_stats.dart';
 import '../models/document.dart';
 import '../models/invoice.dart';
+import '../models/analytics.dart';
 import 'storage_service.dart';
 
 class ApiService {
@@ -195,20 +196,131 @@ class ApiService {
     }
   }
 
-  // Invoices
+  // Invoices with advanced filtering
   Future<PaginatedInvoices> getInvoices({
+    int page = 1,
+    int pageSize = 50,
+    String? searchQuery,
+    String? invoiceType,
+    DateTime? startDate,
+    DateTime? endDate,
+    String? sellerTaxId,
+    String? buyerTaxId,
+  }) async {
+    try {
+      final Map<String, dynamic> queryParams = {
+        'page': page,
+        'page_size': pageSize,
+      };
+
+      if (searchQuery != null && searchQuery.isNotEmpty) {
+        queryParams['search'] = searchQuery;
+      }
+      if (invoiceType != null && invoiceType.isNotEmpty) {
+        queryParams['invoice_type'] = invoiceType;
+      }
+      if (startDate != null) {
+        queryParams['start_date'] = startDate.toIso8601String().split('T')[0];
+      }
+      if (endDate != null) {
+        queryParams['end_date'] = endDate.toIso8601String().split('T')[0];
+      }
+      if (sellerTaxId != null && sellerTaxId.isNotEmpty) {
+        queryParams['seller_tax_id'] = sellerTaxId;
+      }
+      if (buyerTaxId != null && buyerTaxId.isNotEmpty) {
+        queryParams['buyer_tax_id'] = buyerTaxId;
+      }
+
+      final response = await _dio.get(
+        AppConfig.invoicesEndpoint,
+        queryParameters: queryParams,
+      );
+      return PaginatedInvoices.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Invoice?> getInvoiceById(String invoiceId) async {
+    try {
+      final response = await _dio.get('${AppConfig.invoicesEndpoint}$invoiceId/');
+      return Invoice.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // Deep search for invoices (content search using OpenSearch)
+  Future<PaginatedInvoices> searchInvoicesDeep({
+    required String query,
     int page = 1,
     int pageSize = 50,
   }) async {
     try {
       final response = await _dio.get(
-        AppConfig.invoicesEndpoint,
+        AppConfig.invoiceSearchEndpoint,
         queryParameters: {
+          'q': query,
           'page': page,
           'page_size': pageSize,
         },
       );
       return PaginatedInvoices.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      // Fallback to regular search if deep search not available
+      return getInvoices(searchQuery: query, page: page, pageSize: pageSize);
+    }
+  }
+
+  // Analytics
+  Future<CompanyAnalytics> getCompanyAnalytics(String cif) async {
+    try {
+      final response = await _dio.get(
+        AppConfig.companyAnalyticsEndpoint,
+        queryParameters: {'cif': cif},
+      );
+      return CompanyAnalytics.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<TopPartners> getTopPartners(String cif, {int limit = 10}) async {
+    try {
+      final response = await _dio.get(
+        AppConfig.topPartnersEndpoint,
+        queryParameters: {
+          'cif': cif,
+          'limit': limit,
+        },
+      );
+      return TopPartners.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // Cash flow data
+  Future<Map<String, dynamic>> getCashFlow({
+    String? cif,
+    int page = 1,
+    int pageSize = 50,
+  }) async {
+    try {
+      final Map<String, dynamic> queryParams = {
+        'page': page,
+        'page_size': pageSize,
+      };
+      if (cif != null) {
+        queryParams['cif'] = cif;
+      }
+
+      final response = await _dio.get(
+        AppConfig.cashFlowEndpoint,
+        queryParameters: queryParams,
+      );
+      return response.data as Map<String, dynamic>;
     } catch (e) {
       throw _handleError(e);
     }
