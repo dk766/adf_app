@@ -1,6 +1,6 @@
 class AppConfig {
   static const String appName = 'ADF App';
-  static const String defaultBaseUrl = 'http://localhost:8000';
+  static const String defaultBaseUrl = 'http://10.0.2.2:8000';
 
   // Storage keys
   static const String keyBaseUrl = 'base_url';
@@ -26,7 +26,7 @@ class AppConfig {
   static const String documentMetadataEndpoint = '/api/documents/metadata/';
 
   // Company endpoints
-  static const String companiesEndpoint = '/data/company_roles_backend/';
+  static const String companiesEndpoint = '/api/base/companies';
   static const String companyLicensesEndpoint = '/data/company_licenses_backend/';
 
   // Invoice endpoints

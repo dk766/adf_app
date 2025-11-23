@@ -56,10 +56,10 @@ dependencies:
   equatable: ^2.0.5
 
   # File picker for document upload
-  file_picker: ^6.1.1
+  file_picker: ^8.1.4
 
   # Image picker for logo
-  image_picker: ^1.0.7
+  image_picker: ^1.1.2
 
   # Path provider for file paths
   path_provider: ^2.1.2

@@ -70,7 +70,28 @@ class ApiService {
   Future<List<Company>> getCompanies() async {
     try {
       final response = await _dio.get(AppConfig.companiesEndpoint);
-      final results = response.data['results'] as List;
+
+      // Handle both array and object response formats
+      List<dynamic> results;
+      if (response.data is List) {
+        // Direct array response
+        results = response.data as List;
+      } else if (response.data is Map) {
+        final dataMap = response.data as Map<String, dynamic>;
+        // Check for 'companies' key (new endpoint format)
+        if (dataMap.containsKey('companies')) {
+          results = dataMap['companies'] as List;
+        }
+        // Check for 'results' key (paginated format)
+        else if (dataMap.containsKey('results')) {
+          results = dataMap['results'] as List;
+        } else {
+          throw Exception('Unexpected response format: Map without companies or results key');
+        }
+      } else {
+        throw Exception('Unexpected response format: ${response.data.runtimeType}');
+      }
+
       return results.map((e) => Company.fromJson(e as Map<String, dynamic>)).toList();
     } catch (e) {
       throw _handleError(e);

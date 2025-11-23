@@ -93,7 +93,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     crossAxisCount: 2,
                     mainAxisSpacing: 12,
                     crossAxisSpacing: 12,
-                    childAspectRatio: 1.3,
+                    childAspectRatio: 1.1,
                     children: [
                       StatCard(
                         title: 'Total Revenue',
@@ -188,7 +188,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     crossAxisCount: 2,
                     mainAxisSpacing: 12,
                     crossAxisSpacing: 12,
-                    childAspectRatio: 1.3,
+                    childAspectRatio: 1.1,
                     children: [
                       StatCard(
                         title: 'Total Invoices',

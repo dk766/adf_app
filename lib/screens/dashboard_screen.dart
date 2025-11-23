@@ -44,10 +44,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           // Company Selector
           Consumer<CompanyProvider>(
             builder: (context, companyProvider, child) {
-              if (companyProvider.companies.isEmpty) {
-                return const SizedBox.shrink();
-              }
-
               return PopupMenuButton<Company>(
                 icon: const Icon(Icons.business),
                 tooltip: 'Select Company',
@@ -56,6 +52,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   await _loadDashboardData();
                 },
                 itemBuilder: (BuildContext context) {
+                  if (companyProvider.companies.isEmpty) {
+                    return [
+                      PopupMenuItem<Company>(
+                        enabled: false,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'No companies available',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 4),
+                            const Text(
+                              'Please check your connection',
+                              style: TextStyle(fontSize: 12, color: Colors.grey),
+                            ),
+                            const SizedBox(height: 8),
+                            TextButton.icon(
+                              icon: const Icon(Icons.refresh, size: 16),
+                              label: const Text('Retry'),
+                              onPressed: () {
+                                Navigator.pop(context);
+                                companyProvider.loadCompanies();
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ];
+                  }
+
                   return companyProvider.companies.map((Company company) {
                     return PopupMenuItem<Company>(
                       value: company,
@@ -117,18 +144,62 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       body: Consumer2<CompanyProvider, DashboardProvider>(
         builder: (context, companyProvider, dashboardProvider, child) {
-          if (companyProvider.selectedCompany == null) {
-            return const Center(
+          // Show company loading error
+          if (companyProvider.error != null) {
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.business_center, size: 64, color: Colors.grey),
-                  SizedBox(height: 16),
-                  Text('No company selected'),
-                  SizedBox(height: 8),
+                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                  const SizedBox(height: 16),
                   Text(
-                    'Please select a company from the menu',
+                    'Failed to load companies',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Text(
+                      companyProvider.error!,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      await companyProvider.loadCompanies();
+                      if (companyProvider.selectedCompany != null) {
+                        await _loadDashboardData();
+                      }
+                    },
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          if (companyProvider.selectedCompany == null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.business_center, size: 64, color: Colors.grey),
+                  const SizedBox(height: 16),
+                  const Text('No company selected'),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Tap the business icon above to select a company',
                     style: TextStyle(color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  Icon(
+                    Icons.arrow_upward,
+                    size: 32,
+                    color: Colors.grey[400],
                   ),
                 ],
               ),
@@ -265,7 +336,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       physics: const NeverScrollableScrollPhysics(),
                       mainAxisSpacing: 16,
                       crossAxisSpacing: 16,
-                      childAspectRatio: 1.3,
+                      childAspectRatio: 1.1,
                       children: [
                         StatCard(
                           title: 'Monthly Total',
