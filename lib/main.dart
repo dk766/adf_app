@@ -54,7 +54,7 @@ class MyApp extends StatelessWidget {
                 brightness: Brightness.light,
               ),
               useMaterial3: true,
-              cardTheme: CardTheme(
+              cardTheme: CardThemeData(
                 elevation: AppConfig.cardElevation,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppConfig.defaultBorderRadius),
