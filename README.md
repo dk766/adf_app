@@ -1,6 +1,6 @@
 # ADF App
 
-A cross-platform Flutter application for Android, iOS, Linux, macOS, and Windows.
+A cross-platform Flutter application for Android, iOS
 
 ## Project Information
 
@@ -26,8 +26,6 @@ A cross-platform Flutter application for Android, iOS, Linux, macOS, and Windows
 - Platform-specific requirements:
   - **Android**: Android Studio, Gradle 8.7.0+
   - **iOS/macOS**: Xcode, CocoaPods
-  - **Linux**: GTK+ 3.0, CMake 3.14+
-  - **Windows**: Visual Studio, CMake 3.14+
 
 ### Installation
 
@@ -69,19 +67,9 @@ flutter build apk --release
 flutter build ios --release
 ```
 
-#### Linux
-```bash
-flutter build linux --release
-```
-
 #### macOS
 ```bash
 flutter build macos --release
-```
-
-#### Windows
-```bash
-flutter build windows --release
 ```
 
 ## Testing
@@ -112,8 +100,21 @@ macos/              # macOS-specific code
 windows/            # Windows-specific code
 ```
 
-## Resources
+## Run in Dev mode
 
-- [Flutter Documentation](https://docs.flutter.dev/)
-- [Dart Documentation](https://dart.dev/guides)
-- [Flutter Cookbook](https://docs.flutter.dev/cookbook)
+1. list available emulators
+
+flutter emulators
+
+2. Run an emulator
+
+flutter emulator Pixel_6_API_33
+
+3. Check all avalable devices (the new emulator will be one of them with a new id)
+
+flutter devices
+
+4. Run the code in debug more  reload (r), hot restart (R) on that emulator 
+
+flutter emulators --launch emulator-5554 
+

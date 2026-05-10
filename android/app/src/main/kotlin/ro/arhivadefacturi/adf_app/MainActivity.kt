@@ -1,4 +1,4 @@
-package de.mpi.ds.adf_app
+package ro.arhivadefacturi.adf_app
 
 import io.flutter.embedding.android.FlutterActivity
 

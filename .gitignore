@@ -43,10 +43,11 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+/build
 CLAUDE.md
 pubspec.lock
 .vscode/settings.json
 android/build/reports/problems/problems-report.html
 macos/Flutter/GeneratedPluginRegistrant.swift
 windows/flutter/generated_plugins.cmake
-pubspec.lock
+
