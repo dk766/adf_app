@@ -1,6 +1,6 @@
 class AppConfig {
   static const String appName = 'ADF App';
-  static const String defaultBaseUrl = 'http://10.0.2.2:8000';
+  static const String defaultBaseUrl = 'http://192.168.0.161:8000';
 
   // Storage keys
   static const String keyBaseUrl = 'base_url';
@@ -15,10 +15,12 @@ class AppConfig {
 
   // Dashboard endpoints
   static const String dashboardStatsEndpoint = '/api/dashboard/company-stats/';
-  static const String monthlyExpensesEndpoint = '/api/dashboard/monthly-expenses/';
+  static const String monthlyExpensesEndpoint =
+      '/api/dashboard/monthly-expenses/';
   static const String monthlySalesEndpoint = '/api/dashboard/monthly-sales/';
   static const String monthlyProfitEndpoint = '/api/dashboard/monthly-profit/';
-  static const String expensesByCompanyEndpoint = '/api/dashboard/expenses-by-company/';
+  static const String expensesByCompanyEndpoint =
+      '/api/dashboard/expenses-by-company/';
 
   // Documents endpoints
   static const String documentsEndpoint = '/api/documents/';
@@ -26,16 +28,18 @@ class AppConfig {
   static const String documentMetadataEndpoint = '/api/documents/metadata/';
 
   // Company endpoints
-  static const String companiesEndpoint = '/api/base/companies';
-  static const String companyLicensesEndpoint = '/data/company_licenses_backend/';
+  static const String companiesEndpoint = '/api/base/companies/';
+  static const String companyLicensesEndpoint =
+      '/data/company_licenses_backend/';
 
   // Invoice endpoints
-  static const String invoicesEndpoint = '/data/invoice_backend/';
-  static const String invoiceSearchEndpoint = '/api/invoices/search/'; // For future deep search
+  static const String invoicesEndpoint = '/api/invoices/list/';
+  static const String invoiceSearchEndpoint =
+      '/api/invoices/search/'; // For future deep search
 
   // Analytics endpoints (to be implemented on backend)
-  static const String companyAnalyticsEndpoint = '/api/analytics/company/';
-  static const String topPartnersEndpoint = '/api/analytics/top-partners/';
+  static const String companyAnalyticsEndpoint = '/api/analytics/invoice-metrics/';
+  static const String topPartnersEndpoint = '/api/analytics/company-breakdown/';
   static const String cashFlowEndpoint = '/data/cash_backend/';
   static const String extraCashFlowEndpoint = '/data/extra_cash_flow/';
 
@@ -64,5 +68,6 @@ class AppConfig {
 
   // Logo assets (to be added later)
   static const String appLogoPath = 'assets/images/app_logo.png';
-  static const String defaultCompanyLogoPath = 'assets/images/default_company.png';
+  static const String defaultCompanyLogoPath =
+      'assets/images/default_company.png';
 }

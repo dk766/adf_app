@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import '../config/app_config.dart';
 import '../models/auth_token.dart';
 import '../models/company.dart';
@@ -39,7 +40,7 @@ class ApiService {
       },
       onError: (error, handler) {
         // Handle errors globally
-        print('API Error: ${error.message}');
+        debugPrint('API Error: ${error.message}');
         return handler.next(error);
       },
     ));
@@ -219,6 +220,7 @@ class ApiService {
 
   // Invoices with advanced filtering
   Future<PaginatedInvoices> getInvoices({
+    String? cif,
     int page = 1,
     int pageSize = 50,
     String? searchQuery,
@@ -234,6 +236,7 @@ class ApiService {
         'page_size': pageSize,
       };
 
+      if (cif != null && cif.isNotEmpty) queryParams['cif'] = cif;
       if (searchQuery != null && searchQuery.isNotEmpty) {
         queryParams['search'] = searchQuery;
       }

@@ -105,8 +105,8 @@ class BarChartWidget extends StatelessWidget {
               borderData: FlBorderData(
                 show: true,
                 border: Border(
-                  left: BorderSide(color: Colors.grey.withOpacity(0.2)),
-                  bottom: BorderSide(color: Colors.grey.withOpacity(0.2)),
+                  left: BorderSide(color: Colors.grey.withValues(alpha:0.2)),
+                  bottom: BorderSide(color: Colors.grey.withValues(alpha:0.2)),
                 ),
               ),
               barGroups: topEntries.asMap().entries.map((entry) {

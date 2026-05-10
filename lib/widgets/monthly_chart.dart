@@ -46,7 +46,7 @@ class MonthlyChart extends StatelessWidget {
                 horizontalInterval: maxValue / 5,
                 getDrawingHorizontalLine: (value) {
                   return FlLine(
-                    color: Colors.grey.withOpacity(0.2),
+                    color: Colors.grey.withValues(alpha:0.2),
                     strokeWidth: 1,
                   );
                 },
@@ -97,8 +97,8 @@ class MonthlyChart extends StatelessWidget {
               borderData: FlBorderData(
                 show: true,
                 border: Border(
-                  left: BorderSide(color: Colors.grey.withOpacity(0.2)),
-                  bottom: BorderSide(color: Colors.grey.withOpacity(0.2)),
+                  left: BorderSide(color: Colors.grey.withValues(alpha:0.2)),
+                  bottom: BorderSide(color: Colors.grey.withValues(alpha:0.2)),
                 ),
               ),
               minX: 0,
@@ -117,7 +117,7 @@ class MonthlyChart extends StatelessWidget {
                   dotData: const FlDotData(show: true),
                   belowBarData: BarAreaData(
                     show: true,
-                    color: color.withOpacity(0.15),
+                    color: color.withValues(alpha:0.15),
                   ),
                 ),
               ],

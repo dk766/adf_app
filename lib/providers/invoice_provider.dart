@@ -13,6 +13,9 @@ class InvoiceProvider with ChangeNotifier {
   int _totalCount = 0;
   bool _hasMore = true;
 
+  // Company context
+  String? _cif;
+
   // Filters
   String? _searchQuery;
   String? _invoiceType;
@@ -25,6 +28,10 @@ class InvoiceProvider with ChangeNotifier {
   String? get error => _error;
   int get totalCount => _totalCount;
   bool get hasMore => _hasMore;
+
+  void setCif(String? cif) {
+    _cif = cif;
+  }
 
   Future<void> loadInvoices({bool refresh = false}) async {
     if (refresh) {
@@ -41,6 +48,7 @@ class InvoiceProvider with ChangeNotifier {
 
     try {
       final result = await _apiService.getInvoices(
+        cif: _cif,
         page: _currentPage,
         pageSize: 50,
         searchQuery: _searchQuery,

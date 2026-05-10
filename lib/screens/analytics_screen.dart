@@ -127,8 +127,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   if (analytics.financialMetrics.revenueGrowth != 0) ...[
                     Card(
                       color: analytics.financialMetrics.revenueGrowth > 0
-                          ? Colors.green.withOpacity(0.1)
-                          : Colors.red.withOpacity(0.1),
+                          ? Colors.green.withValues(alpha: 0.1)
+                          : Colors.red.withValues(alpha: 0.1),
                       child: Padding(
                         padding: const EdgeInsets.all(AppConfig.defaultPadding),
                         child: Row(
@@ -231,11 +231,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(AppConfig.defaultPadding),
                         child: PieChartWidget(
-                          data: Map.fromIterable(
-                            topPartners.topSuppliers,
-                            key: (e) => e.name,
-                            value: (e) => e.totalAmount,
-                          ),
+                          data: {
+                            for (final e in topPartners.topSuppliers)
+                              e.name: e.totalAmount,
+                          },
                           title: 'Spending Distribution',
                         ),
                       ),
@@ -276,11 +275,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(AppConfig.defaultPadding),
                         child: PieChartWidget(
-                          data: Map.fromIterable(
-                            topPartners.topCustomers,
-                            key: (e) => e.name,
-                            value: (e) => e.totalAmount,
-                          ),
+                          data: {
+                            for (final e in topPartners.topCustomers)
+                              e.name: e.totalAmount,
+                          },
                           title: 'Revenue Distribution',
                         ),
                       ),

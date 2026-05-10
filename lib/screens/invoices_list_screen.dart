@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import '../providers/company_provider.dart';
 import '../providers/invoice_provider.dart';
 import '../models/invoice.dart';
 import '../widgets/pie_chart_widget.dart';
@@ -23,7 +24,10 @@ class _InvoicesListScreenState extends State<InvoicesListScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<InvoiceProvider>().loadInvoices(refresh: true);
+      final cif = context.read<CompanyProvider>().selectedCompany?.cif;
+      final invoiceProvider = context.read<InvoiceProvider>();
+      invoiceProvider.setCif(cif);
+      invoiceProvider.loadInvoices(refresh: true);
     });
 
     _scrollController.addListener(() {
@@ -174,8 +178,8 @@ class _InvoicesListScreenState extends State<InvoicesListScreen> {
           height: 48,
           decoration: BoxDecoration(
             color: invoice.isOverdue
-                ? Colors.red.withOpacity(0.1)
-                : Colors.green.withOpacity(0.1),
+                ? Colors.red.withValues(alpha: 0.1)
+                : Colors.green.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(

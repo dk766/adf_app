@@ -32,26 +32,25 @@ class Invoice {
 
   factory Invoice.fromJson(Map<String, dynamic> json) {
     return Invoice(
-      invoiceId: json['invoice_id'] as String,
-      invoiceType: json['invoice_type'] as String?,
-      issueDate: json['issue_date'] != null
-          ? DateTime.tryParse(json['issue_date'] as String)
-          : null,
-      dueDate: json['due_date'] != null
-          ? DateTime.tryParse(json['due_date'] as String)
-          : null,
-      downloadedAt: json['downloaded_at'] != null
-          ? DateTime.tryParse(json['downloaded_at'] as String)
-          : null,
-      downloadId: json['download_id'] as String?,
-      sellerName: json['seller_name'] as String?,
-      sellerCompanyTaxId: json['seller_company_tax_id'] as String?,
-      buyerName: json['buyer_name'] as String?,
-      buyerCompanyTaxId: json['buyer_company_tax_id'] as String?,
-      tax: json['tax'] as String?,
+      invoiceId: json['invoice_id']?.toString() ?? '',
+      invoiceType: json['invoice_type']?.toString(),
+      issueDate: _parseDate(json['issue_date']),
+      dueDate: _parseDate(json['due_date']),
+      downloadedAt: _parseDate(json['downloaded_at']),
+      downloadId: json['download_id']?.toString(),
+      sellerName: json['seller_name']?.toString(),
+      sellerCompanyTaxId: (json['seller_company_tax_id'] ?? json['seller_cif'])?.toString(),
+      buyerName: json['buyer_name']?.toString(),
+      buyerCompanyTaxId: (json['buyer_company_tax_id'] ?? json['buyer_cif'])?.toString(),
+      tax: json['tax']?.toString(),
       taxExclusiveAmount: _parseDouble(json['tax_exclusive_amount']),
-      payableAmount: _parseDouble(json['payable_amount']),
+      payableAmount: _parseDouble(json['payable_amount'] ?? json['total_amount']),
     );
+  }
+
+  static DateTime? _parseDate(dynamic value) {
+    if (value == null) return null;
+    return DateTime.tryParse(value.toString());
   }
 
   static double? _parseDouble(dynamic value) {
