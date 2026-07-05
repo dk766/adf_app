@@ -57,16 +57,51 @@ This rubric is a starting hypothesis — Phase 0 below is designed to calibrate 
 
 ## 5. Data sources to build the target list
 
-You said you're not sure what's available yet — here's the realistic menu for the Romanian market, roughly in order of ease of access:
+There are two distinct jobs here, and it matters which one each source solves:
 
-1. **ANAF open data** — VAT payer registry (Registrul persoanelor impozabile înregistrate în scopuri de TVA) and the public e-Factura registry (companies enrolled in RO e-Factura). Free, but raw and requires cleaning.
-2. **ONRC (Trade Registry)** — legal form, CAEN code, registration status. Some free lookups, bulk access typically paid.
-3. **Ministry of Finance public financial statements (bilanțuri)** — annual turnover, profit, employee count per company (filed yearly, public). Best proxy you'll get for size/invoice volume without asking the company directly.
-4. **Third-party aggregators** (listafirme.ro, termene.ro, risco.ro, and similar) — package the above into searchable/API form, usually paid subscriptions but save significant scraping effort. Worth pricing out before building anything custom.
-5. **LinkedIn (Sales Navigator or manual)** — headcount trends, sales-role hiring, decision-maker identification. Useful for the "sales team signal" and "reachability" scoring criteria.
-6. **Your own product data** — once you have a meaningful customer base, the highest-signal source is "who are our best customers today" (retention, expansion, invoice volume actually processed). This should feed back into and eventually override the public-data heuristics.
+- **Enrichment**: you already have a CUI (fiscal ID) and want its current details (VAT status, CAEN, e-Factura status, address).
+- **Universe-building**: you *don't* have a list yet — you need to discover which CUIs match your ICP (industry, size, turnover) in the first place.
 
-**Caveat to flag now, not later:** once you're pulling named individuals (decision-maker names, personal emails) rather than company-level data, GDPR applies even in a B2B context. Keep a documented legitimate-interest basis for outbound prospecting and an easy opt-out, and check the ToS of any aggregator before bulk-scraping their data.
+No single free official source solves universe-building well on its own; it has to be assembled. Here's the concrete source inventory:
+
+### 5.1 Source inventory
+
+| Source | Solves | Access | Cost | Notes |
+|---|---|---|---|---|
+| **ANAF `PlatitorTvaRest` web service** | Enrichment | Official REST API, POST a batch of CUIs + date | Free | Given a CUI, returns VAT-payer status, CAEN code, address, inactive-taxpayer flag, split-VAT-payment flag, **and RO e-Factura registration status** — all in one call. Batchable (historically ~a few hundred CUIs per call; confirm the current cap in ANAF's own docs before relying on a number). ANAF now has a separate "Înregistrare pentru API-uri" registration page for some services — check whether this specific endpoint still works key-less or now needs registration, since that's changed over time. |
+| **Ministry of Finance "Situații financiare" datasets on data.gov.ro** | Universe-building | Free bulk download, one dataset per fiscal year (e.g. `situatii_financiare_2024`) | Free | This is the closest thing to a free full-population dump: turnover, profit, employee-count indicators per CUI, sourced from filed annual financial statements. Lags reality by ~1 year (companies file the following year) and the file format is a flat/text extract, not a clean queryable API — needs a parsing step. This is your best free lever for the "invoice volume proxy" and "ability to pay" scoring criteria at population scale. |
+| **ONRC (Trade Registry) / RECOM online** | Universe-building (CAEN, legal status) + enrichment | Official, but subscription/contract-based for bulk; free single lookups on the ONRC portal | ~9 RON per company record for the bulk information service, plus a contract with ONRC | Authoritative source for CAEN code and company status (active/dissolved/etc.), but not a free open API — budget for it if you go the DIY route. Note: full ONRC extracts also include the administrator's/legal representative's personal name — that field is personal data under GDPR even though the rest of the record is company data. |
+| **Insolvency register (Buletinul Procedurilor de Insolvență)** | Negative filter | Public portal/dataset | Free | Use to exclude companies in insolvency from outreach — cheap sanity filter, avoid wasting sales time and avoid a bad look. |
+| **Third-party aggregators** (listafirme.ro, termene.ro, risco.ro, and similar) | Universe-building + enrichment, pre-joined | Commercial API/export subscriptions | Paid (get quotes) | These have already done the CUI-based join across ANAF + ONRC + MF financials into one searchable/API-accessible database. Given Phase 1 only needs a few hundred to low-thousands of companies, pricing these out is very likely faster and cheaper than building the DIY pipeline below. |
+| **LinkedIn (Sales Navigator or manual)** | Enrichment (decision-maker, hiring signal) | Native tool, no scraping | Free–paid tier | Covers the "sales-team signal" and "reachability" scoring criteria; doesn't cover financials. See prior message for the compliant-use boundary. |
+| **Your own product data** | Ground truth | Internal | Free | Once you have paying customers, "who actually renews/expands" is the highest-signal input and should eventually override the public-data heuristics above. |
+
+### 5.2 Recommended extraction sequence (DIY path)
+
+If you go the build-it-yourself route rather than an aggregator, the join key across every *official* source above is the **CUI** — it's consistent everywhere, so no fuzzy matching is needed until you cross into LinkedIn company names.
+
+1. **Build the universe**: pull the relevant year's "Situații financiare" dataset from data.gov.ro, filter to your turnover band and (if the dataset includes it) CAEN prefixes matching Section 3.1's target industries. Output: a CUI list.
+2. **Enrich in real time**: batch that CUI list through the free ANAF `PlatitorTvaRest` service to pull current VAT status, CAEN, e-Factura status, and the inactive-taxpayer flag. This step is worth doing regardless of which universe-building route you pick, since it's free, official, and real-time.
+3. **Exclude**: drop inactive taxpayers (flagged directly in step 2's response), insolvent companies (cross-reference the insolvency register), and anything matching the anti-ICP in Section 3.3 (e.g. very large taxpayers).
+4. **Score**: apply the rubric in Section 4 to what's left.
+
+### 5.3 CAEN codes to anchor the industry filter
+
+CAEN (Clasificarea Activităților din Economia Națională) is a static public reference table from INS — embed it once, it doesn't need "extraction." Indicative divisions matching the Section 3.1 target industries:
+
+- **Wholesale/distribution** — Section G, division 46
+- **Manufacturing** — Section C, divisions 10–33
+- **Construction** — Section F, divisions 41–43
+- **Transport & logistics** — Section H, divisions 49–53
+- **IT services** — Section J, division 62
+- **Professional services (accounting/consulting — also your channel segment)** — Section M, divisions 69–70
+- **E-commerce/retail** — division 47.91 and related retail codes
+
+### 5.4 Build vs. buy — recommendation
+
+Given Phase 1 only needs a few hundred to low-thousands of scored companies, **get quotes from 2–3 aggregators (listafirme, termene, risco) before building the DIY pipeline in 5.2.** The DIY path is free-ish but has real costs: the MF bulk files need parsing, ONRC bulk lookups are billed per record, and none of it is a live API you can query on demand. The one piece worth doing yourself regardless of the aggregator decision is step 2 (ANAF VAT/e-Factura enrichment) — it's free, official, and useful as an ongoing verification layer even on top of aggregator-sourced lists.
+
+**Caveat to flag now, not later:** once you're pulling named individuals (decision-maker names from ONRC extracts, personal emails) rather than company-level data, GDPR applies even in a B2B context. Keep a documented legitimate-interest basis for outbound prospecting and an easy opt-out, and check the ToS of any aggregator before bulk-scraping their data.
 
 ## 6. Go-to-market plan
 
